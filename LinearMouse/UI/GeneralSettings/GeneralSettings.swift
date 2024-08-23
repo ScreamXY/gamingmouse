@@ -7,7 +7,6 @@ import SwiftUI
 
 struct GeneralSettings: View {
     @Default(.showInMenuBar) var showInMenuBar
-    @Default(.bypassEventsFromOtherApplications) var bypassEventsFromOtherApplications
 
     var body: some View {
         DetailView(schemeSpecific: false) {
@@ -26,14 +25,6 @@ struct GeneralSettings: View {
                         Text("Start at login")
                     }
 
-                    Toggle(isOn: $bypassEventsFromOtherApplications) {
-                        withDescription {
-                            Text("Bypass events from other applications")
-                            Text(
-                                "If enabled, \(LinearMouse.appName) will not modify events sent by other applications, such as Logi Options+."
-                            )
-                        }
-                    }
                 }
                 .modifier(SectionViewModifier())
 

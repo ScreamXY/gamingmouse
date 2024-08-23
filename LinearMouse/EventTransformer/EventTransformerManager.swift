@@ -11,8 +11,6 @@ class EventTransformerManager {
     static let shared = EventTransformerManager()
     static let log = OSLog(subsystem: Bundle.main.bundleIdentifier!, category: "EventTransformerManager")
 
-    @Default(.bypassEventsFromOtherApplications) var bypassEventsFromOtherApplications
-
     private var eventTransformerCache = LRUCache<CacheKey, EventTransformer>(countLimit: 16)
     private var activeCacheKey: CacheKey?
 
@@ -33,10 +31,6 @@ class EventTransformerManager {
             .store(in: &subscriptions)
     }
 
-    private let sourceBundleIdentifierBypassSet: Set<String> = [
-        "cc.ffitch.shottr"
-    ]
-
     func get(withCGEvent cgEvent: CGEvent,
              withSourcePid sourcePid: pid_t?,
              withTargetPid pid: pid_t?,
@@ -56,22 +50,6 @@ class EventTransformerManager {
         }
 
         activeCacheKey = nil
-
-        if sourcePid != nil, bypassEventsFromOtherApplications {
-            os_log("Return noop transformer because this event is sent by %{public}s",
-                   log: Self.log,
-                   type: .info,
-                   sourcePid?.bundleIdentifier ?? "(unknown)")
-            return []
-        }
-        if let sourceBundleIdentifier = sourcePid?.bundleIdentifier,
-           sourceBundleIdentifierBypassSet.contains(sourceBundleIdentifier) {
-            os_log("Return noop transformer because the source application %{public}s is in the bypass set",
-                   log: Self.log,
-                   type: .info,
-                   sourceBundleIdentifier)
-            return []
-        }
 
         let device = DeviceManager.shared.deviceFromCGEvent(cgEvent)
         let cacheKey = CacheKey(deviceMatcher: device.map { DeviceMatcher(of: $0) },
@@ -122,33 +100,6 @@ class EventTransformerManager {
             eventTransformer
                 .append(ScrollingAccelerationSpeedAdjustmentTransformer(acceleration: scheme.scrolling.acceleration,
                                                                         speed: scheme.scrolling.speed))
-        }
-
-        if let timeout = scheme.buttons.clickDebouncing.timeout, timeout > 0,
-           let buttons = scheme.buttons.clickDebouncing.buttons {
-            let resetTimerOnMouseUp = scheme.buttons.clickDebouncing.resetTimerOnMouseUp ?? false
-            for button in buttons {
-                eventTransformer.append(ClickDebouncingTransformer(for: button,
-                                                                   timeout: TimeInterval(timeout) / 1000,
-                                                                   resetTimerOnMouseUp: resetTimerOnMouseUp))
-            }
-        }
-
-        if let modifiers = scheme.scrolling.$modifiers {
-            eventTransformer.append(ModifierActionsTransformer(modifiers: modifiers))
-        }
-
-        if scheme.buttons.switchPrimaryButtonAndSecondaryButtons == true {
-            eventTransformer.append(SwitchPrimaryAndSecondaryButtonsTransformer())
-        }
-
-        if let mappings = scheme.buttons.mappings {
-            eventTransformer.append(ButtonActionsTransformer(mappings: mappings))
-        }
-
-        if let universalBackForward = scheme.buttons.universalBackForward,
-           universalBackForward != .none {
-            eventTransformer.append(UniversalBackForwardTransformer(universalBackForward: universalBackForward))
         }
 
         eventTransformerCache.setValue(eventTransformer, forKey: cacheKey)

@@ -10,10 +10,6 @@ import PointerKit
 class Device {
     private static let log = OSLog(subsystem: Bundle.main.bundleIdentifier!, category: "Device")
 
-    static let fallbackPointerAcceleration = 0.6875
-    static let fallbackPointerResolution = 400.0
-    static let fallbackPointerSpeed = pointerSpeed(fromPointerResolution: fallbackPointerResolution)
-
     private struct Product: Hashable {
         let vendorID: Int
         let productID: Int
@@ -31,8 +27,6 @@ class Device {
 
     @Default(.verbosedLoggingOn) private var verbosedLoggingOn
 
-    private let initialPointerResolution: Double
-
     private var inputObservationToken: ObservationToken?
     private var reportObservationToken: ObservationToken?
 
@@ -41,8 +35,6 @@ class Device {
     init(_ manager: DeviceManager, _ device: PointerDevice) {
         self.manager = manager
         self.device = device
-
-        initialPointerResolution = device.pointerResolution ?? Self.fallbackPointerResolution
 
         // TODO: More elegant way?
         inputObservationToken = device.observeInput(using: { [weak self] in
@@ -66,7 +58,7 @@ class Device {
         os_log("Device initialized: %{public}@: HIDPointerResolution=%{public}f, HIDPointerAccelerationType=%{public}@",
                log: Self.log, type: .info,
                String(describing: device),
-               initialPointerResolution,
+               0,
                device.pointerAccelerationType ?? "(unknown)")
     }
 
@@ -122,84 +114,6 @@ extension Device {
             return .trackpad
         }
         return .mouse
-    }
-
-    /**
-     This feature was introduced in macOS Sonoma. In the earlier versions of
-     macOS, this value would be nil.
-     */
-    var disablePointerAcceleration: Bool? {
-        get {
-            device.useLinearScalingMouseAcceleration.map { $0 != 0 }
-        }
-        set {
-            guard device.useLinearScalingMouseAcceleration != nil, let newValue = newValue else {
-                return
-            }
-            device.useLinearScalingMouseAcceleration = newValue ? 1 : 0
-        }
-    }
-
-    var pointerAcceleration: Double {
-        get {
-            device.pointerAcceleration ?? Self.fallbackPointerAcceleration
-        }
-        set {
-            os_log("Update pointer acceleration for device: %{public}@: %{public}f",
-                   log: Self.log, type: .info,
-                   String(describing: self), newValue)
-            device.pointerAcceleration = newValue
-        }
-    }
-
-    private static let pointerSpeedRange = 1.0 / 1200 ... 1.0 / 40
-
-    static func pointerSpeed(fromPointerResolution pointerResolution: Double) -> Double {
-        (1 / pointerResolution).normalized(from: pointerSpeedRange)
-    }
-
-    static func pointerResolution(fromPointerSpeed pointerSpeed: Double) -> Double {
-        1 / (pointerSpeed.normalized(to: pointerSpeedRange))
-    }
-
-    var pointerSpeed: Double {
-        get {
-            device.pointerResolution.map { Self.pointerSpeed(fromPointerResolution: $0) } ?? Self
-                .fallbackPointerSpeed
-        }
-        set {
-            os_log("Update pointer speed for device: %{public}@: %{public}f",
-                   log: Self.log, type: .info,
-                   String(describing: self), newValue)
-            device.pointerResolution = Self.pointerResolution(fromPointerSpeed: newValue)
-        }
-    }
-
-    func restorePointerAcceleration() {
-        let systemPointerAcceleration = (DeviceManager.shared
-            .getSystemProperty(forKey: device.pointerAccelerationType ?? kIOHIDMouseAccelerationTypeKey) as IOFixed?)
-            .map { Double($0) / 65536 } ?? Self.fallbackPointerAcceleration
-
-        os_log("Restore pointer acceleration for device: %{public}@: %{public}f",
-               log: Self.log, type: .info,
-               String(describing: device),
-               systemPointerAcceleration)
-
-        pointerAcceleration = systemPointerAcceleration
-    }
-
-    func restorePointerSpeed() {
-        os_log("Restore pointer speed for device: %{public}@: %{public}f",
-               log: Self.log, type: .info,
-               String(describing: device),
-               Self.pointerSpeed(fromPointerResolution: initialPointerResolution))
-
-        device.pointerResolution = initialPointerResolution
-    }
-
-    func restorePointerAccelerationAndPointerSpeed() {
-        restorePointerSpeed()
-        restorePointerAcceleration()
     }
 
     private func inputValueCallback(_ device: PointerDevice, _ value: IOHIDValue) {

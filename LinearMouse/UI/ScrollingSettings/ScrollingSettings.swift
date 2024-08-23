@@ -13,8 +13,6 @@ struct ScrollingSettings: View {
                     ReverseScrollingSection()
 
                     ScrollingModeSection()
-
-                    ModifierKeysSection()
                 }
                 .modifier(FormViewModifier())
             }

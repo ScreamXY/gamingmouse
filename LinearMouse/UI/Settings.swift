@@ -19,10 +19,6 @@ struct Settings: View {
                 switch navigation {
                 case .scrolling:
                     ScrollingSettings()
-                case .pointer:
-                    PointerSettings()
-                case .buttons:
-                    ButtonsSettings()
                 case .general:
                     GeneralSettings()
                 }

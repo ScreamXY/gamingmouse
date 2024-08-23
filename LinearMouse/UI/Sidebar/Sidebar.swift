@@ -10,14 +10,6 @@ struct Sidebar: View {
                         imageName: "Scrolling",
                         text: "Scrolling")
 
-            SidebarItem(id: .pointer,
-                        imageName: "Pointer",
-                        text: "Pointer")
-
-            SidebarItem(id: .buttons,
-                        imageName: "Buttons",
-                        text: "Buttons")
-
             SidebarItem(id: .general,
                         imageName: "General",
                         text: "General")

@@ -17,18 +17,10 @@ struct Scheme: Codable, Equatable {
 
     @ImplicitOptional var scrolling: Scrolling
 
-    @ImplicitOptional var pointer: Pointer
-
-    @ImplicitOptional var buttons: Buttons
-
     init(if: [If]? = nil,
-         scrolling: Scrolling? = nil,
-         pointer: Pointer? = nil,
-         buttons: Buttons? = nil) {
+         scrolling: Scrolling? = nil) {
         self.if = `if`
         $scrolling = scrolling
-        $pointer = pointer
-        $buttons = buttons
     }
 }
 
@@ -85,8 +77,6 @@ extension Scheme {
 
     func merge(into scheme: inout Self) {
         $scrolling?.merge(into: &scheme.scrolling)
-        $pointer?.merge(into: &scheme.pointer)
-        $buttons?.merge(into: &scheme.buttons)
     }
 }
 

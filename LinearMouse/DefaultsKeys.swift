@@ -8,7 +8,5 @@ extension Defaults.Keys {
 
     static let betaChannelOn = Key("betaChannelOn", default: false)
 
-    static let bypassEventsFromOtherApplications = Key("bypassEventsFromOtherApplications", default: false)
-
     static let verbosedLoggingOn = Key("verbosedLoggingOn", default: false)
 }
