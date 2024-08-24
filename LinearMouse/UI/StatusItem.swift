@@ -40,33 +40,6 @@ class StatusItem {
             }
             .store(in: &subscriptions)
 
-        let openSettingsForFrontmostApplicationItem = NSMenuItem(
-            title: "",
-            action: #selector(openSettingsForFrontmostApplication),
-            keyEquivalent: ""
-        )
-        func updateOpenSettingsForFrontmostApplicationItem() {
-            guard let url = NSWorkspace.shared.frontmostApplication?.bundleURL,
-                  let name = try? readInstalledApp(at: url)?.bundleName else {
-                openSettingsForFrontmostApplicationItem.isHidden = true
-                return
-            }
-            openSettingsForFrontmostApplicationItem.isHidden = false
-            openSettingsForFrontmostApplicationItem.title = String(
-                format: NSLocalizedString("Configure for %@…", comment: ""),
-                name
-            )
-        }
-        updateOpenSettingsForFrontmostApplicationItem()
-        NSWorkspace.shared.notificationCenter.addObserver(
-            forName: NSWorkspace.didActivateApplicationNotification,
-            object: nil,
-            queue: .main,
-            using: { _ in
-                updateOpenSettingsForFrontmostApplicationItem()
-            }
-        )
-
         let quitItem = NSMenuItem(title: String(format: NSLocalizedString("Quit %@", comment: ""), LinearMouse.appName),
                                   action: #selector(quit),
                                   keyEquivalent: "q")
@@ -77,7 +50,6 @@ class StatusItem {
             configurationItem,
             startAtLoginItem,
             .separator(),
-            openSettingsForFrontmostApplicationItem,
             quitItem
         ]
 
@@ -138,13 +110,6 @@ class StatusItem {
     }
 
     @objc private func openSettings() {
-        SchemeState.shared.currentApp = nil
-        SchemeState.shared.currentDisplay = nil
-        SettingsWindow.shared.bringToFront()
-    }
-
-    @objc private func openSettingsForFrontmostApplication() {
-        SchemeState.shared.currentApp = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
         SettingsWindow.shared.bringToFront()
     }
 

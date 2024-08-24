@@ -73,14 +73,6 @@ class DeviceManager: ObservableObject {
                 }
             }
             .store(in: &subscriptions)
-
-        ScreenManager.shared.$currentScreenName
-            .sink { [weak self] _ in
-                guard let self = self else {
-                    return
-                }
-            }
-            .store(in: &subscriptions)
     }
 
     private func deviceAdded(_: PointerDeviceManager, _ pointerDevice: PointerDevice) {

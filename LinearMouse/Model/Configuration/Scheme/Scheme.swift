@@ -25,21 +25,13 @@ struct Scheme: Codable, Equatable {
 }
 
 extension Scheme {
-    func isActive(withDevice device: Device? = nil,
-                  withApp app: String? = nil,
-                  withParentApp parentApp: String? = nil,
-                  withGroupApp groupApp: String? = nil,
-                  withDisplay display: String? = nil) -> Bool {
+    func isActive(withDevice device: Device? = nil) -> Bool {
         guard let `if` = `if` else {
             return true
         }
 
         return `if`.contains {
-            $0.isSatisfied(withDevice: device,
-                           withApp: app,
-                           withParentApp: parentApp,
-                           withGroupApp: groupApp,
-                           withDisplay: display)
+            $0.isSatisfied(withDevice: device)
         }
     }
 
@@ -61,10 +53,6 @@ extension Scheme {
         }
 
         return true
-    }
-
-    var isDisplaySpecific: Bool {
-        `if`?.contains { $0.display != nil } ?? false
     }
 
     var matchedDevices: [Device] {
@@ -105,41 +93,12 @@ extension [Scheme] {
         case insertAt(Int)
     }
 
-    func schemeIndex(ofDevice device: Device,
-                     ofApp app: String?,
-                     ofDisplay display: String?) -> SchemeIndex {
+    func schemeIndex(ofDevice device: Device) -> SchemeIndex {
         let allDeviceSpecificSchemes = allDeviceSpecficSchemes(of: device)
 
         guard let first = allDeviceSpecificSchemes.first,
               let last = allDeviceSpecificSchemes.last else {
             return .insertAt(self.endIndex)
-        }
-
-        if let (index, _) = allDeviceSpecificSchemes
-            .first(where: { _, scheme in scheme.if?.first?.app == app && scheme.if?.first?.display == display }) {
-            return .at(index)
-        }
-
-        if app == nil, display == nil {
-            return .insertAt(first.offset)
-        }
-
-        if app != nil, display != nil {
-            return .insertAt(last.offset + 1)
-        }
-
-        if app != nil {
-            if let (index, _) = allDeviceSpecificSchemes
-                .first(where: { _, scheme in scheme.if?.first?.app == app }) {
-                return .insertAt(index)
-            }
-        }
-
-        if display != nil {
-            if let (index, _) = allDeviceSpecificSchemes
-                .first(where: { _, scheme in scheme.if?.first?.display == display }) {
-                return .insertAt(index)
-            }
         }
 
         return .insertAt(last.offset + 1)

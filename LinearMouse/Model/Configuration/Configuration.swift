@@ -92,29 +92,17 @@ extension Configuration {
         try dump().write(to: url, options: .atomic)
     }
 
-    func matchScheme(withDevice device: Device? = nil,
-                     withApp app: String? = nil,
-                     withParentApp parentApp: String? = nil,
-                     withGroupApp groupApp: String? = nil,
-                     withDisplay display: String? = nil) -> Scheme {
+    func matchScheme(withDevice device: Device? = nil) -> Scheme {
         // TODO: Backtrace the merge path
         // TODO: Optimize the algorithm
 
         var mergedScheme = Scheme()
 
-        let `if` = Scheme.If(device: device.map { DeviceMatcher(of: $0) },
-                             app: app,
-                             parentApp: parentApp,
-                             groupApp: groupApp,
-                             display: display)
+        let `if` = Scheme.If(device: device.map { DeviceMatcher(of: $0) })
 
         mergedScheme.if = [`if`]
 
-        for scheme in schemes where scheme.isActive(withDevice: device,
-                                                    withApp: app,
-                                                    withParentApp: parentApp,
-                                                    withGroupApp: groupApp,
-                                                    withDisplay: display) {
+        for scheme in schemes where scheme.isActive(withDevice: device) {
             scheme.merge(into: &mergedScheme)
         }
 
@@ -122,12 +110,7 @@ extension Configuration {
     }
 
     func matchScheme(withDevice device: Device? = nil,
-                     withPid pid: pid_t? = nil,
-                     withDisplay display: String? = nil) -> Scheme {
-        matchScheme(withDevice: device,
-                    withApp: pid?.bundleIdentifier,
-                    withParentApp: pid?.parent?.bundleIdentifier,
-                    withGroupApp: pid?.group?.bundleIdentifier,
-                    withDisplay: display)
+                     withPid pid: pid_t? = nil) -> Scheme {
+        matchScheme(withDevice: device)
     }
 }

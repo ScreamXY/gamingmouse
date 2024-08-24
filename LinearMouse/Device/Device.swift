@@ -55,10 +55,9 @@ class Device {
             })
         }
 
-        os_log("Device initialized: %{public}@: HIDPointerResolution=%{public}f, HIDPointerAccelerationType=%{public}@",
+        os_log("Device initialized: %{public}@: HIDPointerAccelerationType=%{public}@",
                log: Self.log, type: .info,
                String(describing: device),
-               0,
                device.pointerAccelerationType ?? "(unknown)")
     }
 

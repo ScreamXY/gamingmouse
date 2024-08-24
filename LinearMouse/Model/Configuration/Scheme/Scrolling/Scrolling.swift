@@ -9,20 +9,17 @@ extension Scheme {
         @ImplicitOptional var distance: Bidirectional<Distance>
         @ImplicitOptional var acceleration: Bidirectional<Decimal>
         @ImplicitOptional var speed: Bidirectional<Decimal>
-        @ImplicitOptional var modifiers: Bidirectional<Modifiers>
 
         init() {}
 
         init(reverse: Bidirectional<Bool>? = nil,
              distance: Bidirectional<Distance>? = nil,
              acceleration: Bidirectional<Decimal>? = nil,
-             speed: Bidirectional<Decimal>? = nil,
-             modifiers: Bidirectional<Modifiers>? = nil) {
+             speed: Bidirectional<Decimal>? = nil) {
             $reverse = reverse
             $distance = distance
             $acceleration = acceleration
             $speed = speed
-            $modifiers = modifiers
         }
     }
 }
@@ -33,7 +30,6 @@ extension Scheme.Scrolling {
         $distance?.merge(into: &scrolling.distance)
         $acceleration?.merge(into: &scrolling.acceleration)
         $speed?.merge(into: &scrolling.speed)
-        $modifiers?.merge(into: &scrolling.modifiers)
     }
 
     func merge(into scrolling: inout Self?) {

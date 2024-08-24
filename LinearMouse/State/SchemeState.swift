@@ -12,9 +12,6 @@ class SchemeState: ObservableObject {
 
     private var subscriptions = Set<AnyCancellable>()
 
-    @Published var currentApp: String?
-    @Published var currentDisplay: String?
-
     init() {
         configurationState.$configuration
             .sink { [weak self] _ in
@@ -50,11 +47,6 @@ extension SchemeState {
         set { configurationState.configuration.schemes = newValue }
     }
 
-    var currentAppName: String? {
-        guard let currentApp = currentApp else { return nil }
-        return try? readInstalledApp(bundleIdentifier: currentApp)?.bundleName ?? currentApp
-    }
-
     var scheme: Scheme {
         get {
             guard let device = device else {
@@ -62,22 +54,20 @@ extension SchemeState {
             }
 
             if case let .at(index) = schemes.schemeIndex(
-                ofDevice: device,
-                ofApp: currentApp,
-                ofDisplay: currentDisplay
+                ofDevice: device
             ) {
                 return schemes[index]
             }
 
             return Scheme(if: [
-                .init(device: .init(of: device), app: currentApp, display: currentDisplay)
+                .init(device: .init(of: device))
             ])
         }
 
         set {
             guard let device = device else { return }
 
-            switch schemes.schemeIndex(ofDevice: device, ofApp: currentApp, ofDisplay: currentDisplay) {
+            switch schemes.schemeIndex(ofDevice: device) {
             case let .at(index):
                 schemes[index] = newValue
             case let .insertAt(index):
@@ -91,10 +81,6 @@ extension SchemeState {
             return Scheme()
         }
 
-        return configurationState.configuration.matchScheme(
-            withDevice: device,
-            withApp: currentApp,
-            withDisplay: currentDisplay
-        )
+        return configurationState.configuration.matchScheme(withDevice: device)
     }
 }
