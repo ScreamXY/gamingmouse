@@ -15,11 +15,6 @@ class Device {
         let productID: Int
     }
 
-    private static let productsToApplySideButtonFixes: Set<Product> = [
-        .init(vendorID: 0x2717, productID: 0x5014), // Mi Silent Mouse
-        .init(vendorID: 0x248A, productID: 0x8266) // Delux M729DB mouse
-    ]
-
     private weak var manager: DeviceManager?
     private let device: PointerDevice
 
@@ -40,20 +35,6 @@ class Device {
         inputObservationToken = device.observeInput(using: { [weak self] in
             self?.inputValueCallback($0, $1)
         })
-
-        // Some bluetooth devices, such as Mi Dual Mode Wireless Mouse Silent Edition, report only
-        // 3 buttons in the HID report descriptor. As a result, macOS does not recognize side button
-        // clicks from these devices.
-        //
-        // To work around this issue, we subscribe to the input reports and monitor the side button
-        // states. When the side buttons are clicked, we simulate those events.
-        if buttonCount == 3,
-           let vendorID = vendorID, let productID = productID,
-           Self.productsToApplySideButtonFixes.contains(.init(vendorID: vendorID, productID: productID)) {
-            reportObservationToken = device.observeReport(using: { [weak self] in
-                self?.inputReportCallback($0, $1)
-            })
-        }
 
         os_log("Device initialized: %{public}@: HIDPointerAccelerationType=%{public}@",
                log: Self.log, type: .info,
@@ -96,6 +77,14 @@ extension Device {
 
     enum Category {
         case mouse, trackpad
+    }
+    
+    var isGamingMouse: Bool? {
+        if let vendorID: Int = device.vendorID,
+           let productID: Int = device.productID {
+            return !isAppleMagicMouse(vendorID: vendorID, productID: productID) && category == .mouse
+        }
+        return true
     }
 
     private func isAppleMagicMouse(vendorID: Int, productID: Int) -> Bool {

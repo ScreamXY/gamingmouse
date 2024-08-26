@@ -124,13 +124,4 @@ extension ScrollingSettingsState {
             return scrollingDistanceInPixels == 0
         }
     }
-
-    var modifiers: Scheme.Scrolling.Modifiers {
-        get {
-            mergedScheme.scrolling.modifiers[direction] ?? .init()
-        }
-        set {
-            scheme.scrolling.modifiers[direction] = newValue
-        }
-    }
 }

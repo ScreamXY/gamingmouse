@@ -29,7 +29,7 @@ class MouseEventView: EventView {
             return "(nil)"
         }
 
-        return (modifiers + ["<button \(mouseButton.rawValue)>"]).joined(separator: "+")
+        return (["<button \(mouseButton.rawValue)>"]).joined(separator: "+")
     }
 
     var sourcePid: pid_t? {
