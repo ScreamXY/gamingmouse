@@ -35,26 +35,6 @@ extension Scheme {
         }
     }
 
-    /// A scheme is device-specific if and only if a) it has only one `if` and
-    /// b) the `if` contains conditions that specifies both vendorID and productID.
-    var isDeviceSpecific: Bool {
-        guard let conditions = `if` else {
-            return false
-        }
-
-        guard conditions.count == 1,
-              let condition = conditions.first else {
-            return false
-        }
-
-        guard condition.device?.vendorID != nil,
-              condition.device?.productID != nil else {
-            return false
-        }
-
-        return true
-    }
-
     var matchedDevices: [Device] {
         DeviceManager.shared.devices.filter { isActive(withDevice: $0) }
     }
@@ -81,7 +61,6 @@ extension Scheme: CustomStringConvertible {
 extension [Scheme] {
     func allDeviceSpecficSchemes(of device: Device) -> [EnumeratedSequence<[Scheme]>.Element] {
         self.enumerated().filter { _, scheme in
-            guard scheme.isDeviceSpecific else { return false }
             guard scheme.if?.count == 1, let `if` = scheme.if?.first else { return false }
             guard `if`.device?.match(with: device) == true else { return false }
             return true

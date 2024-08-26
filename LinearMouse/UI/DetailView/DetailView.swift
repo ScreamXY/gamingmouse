@@ -11,10 +11,6 @@ struct DetailView<T>: View where T: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if schemeSpecific {
-                SchemeIndicator()
-            }
-
             if schemeSpecific, !schemeState.isSchemeValid {
                 Text("No device selected.")
                     .frame(maxWidth: .infinity,

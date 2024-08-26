@@ -16,8 +16,6 @@ class EventTransformerManager {
 
     struct CacheKey: Hashable {
         var deviceMatcher: DeviceMatcher?
-        var pid: pid_t?
-        var screen: String?
     }
 
     private var subscriptions = Set<AnyCancellable>()
@@ -51,8 +49,7 @@ class EventTransformerManager {
         activeCacheKey = nil
 
         let device = DeviceManager.shared.deviceFromCGEvent(cgEvent)
-        let cacheKey = CacheKey(deviceMatcher: device.map { DeviceMatcher(of: $0) },
-                                pid: pid)
+        let cacheKey = CacheKey(deviceMatcher: device.map { DeviceMatcher(of: $0) })
         activeCacheKey = cacheKey
         if let eventTransformer = eventTransformerCache.value(forKey: cacheKey) {
             return eventTransformer
