@@ -1,13 +1,50 @@
 name: Build
 on:
   push:
+    # Only confirmed non-inputs are excluded; shipped content and unknown paths run.
+    paths-ignore:
+      - 'README.md'
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - 'SECURITY.md'
+      - 'README-cn.md'
+      - 'ACCESSIBILITY.md'
+      - 'CODE_OF_CONDUCT.md'
+      - 'CONTRIBUTING.md'
+      - 'CONTRIBUTING-cn.md'
+      - 'Documentation/*.md'
+      - 'Modules/**/README.md'
+      - 'Modules/README.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE*'
+      - '.github/CODEOWNERS'
+      - '.vscode/**'
     branches-ignore:
       - l10n_main
     tags:
       - v*
   pull_request:
+    # Only confirmed non-inputs are excluded; shipped content and unknown paths run.
+    paths-ignore:
+      - 'README.md'
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - 'SECURITY.md'
+      - 'README-cn.md'
+      - 'ACCESSIBILITY.md'
+      - 'CODE_OF_CONDUCT.md'
+      - 'CONTRIBUTING.md'
+      - 'CONTRIBUTING-cn.md'
+      - 'Documentation/*.md'
+      - 'Modules/**/README.md'
+      - 'Modules/README.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE*'
+      - '.github/CODEOWNERS'
+      - '.vscode/**'
     branches-ignore:
       - l10n_main
+  workflow_dispatch:
 
 jobs:
   build:
